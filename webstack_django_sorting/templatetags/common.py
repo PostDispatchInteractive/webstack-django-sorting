@@ -6,14 +6,31 @@ from operator import attrgetter
 from .settings import SORT_DIRECTIONS
 
 
-def render_sort_anchor(request, field_name, title):
+def render_sort_anchor(request, field_name, title, default_sort=None):
     get_params = request.GET.copy()
     sort_by = get_params.get("sort", None)
+    # This if statement is part of the default_sort_field kludge add by JMR.
+    # Sets the sortby variable to the field specified in the `default_sort_field` context variable
+    # but only if this is the primary page, without `sort` or `dir` GET parameters.
+    if sort_by == None and default_sort:
+        sort_by = default_sort.replace('-','')
+
     if sort_by == field_name:
-        # Render anchor link to next direction
-        current_direction = SORT_DIRECTIONS[get_params.get("dir", "")]
-        icon = current_direction["icon"]
-        next_direction_code = current_direction["next"]
+        # This if is part of the default_sort_field kludge add by JMR. The else is the original code.
+        # Sets the sortdir variable based on presence/absence of hyphen in the `default_sort_field` context variable
+        # but only if this is the primary page, without `sort` or `dir` GET parameters.
+        if get_params.get('dir') == None and default_sort:
+            if default_sort[0] == '-':
+                current_direction = SORT_DIRECTIONS['desc']
+            else:
+                current_direction = SORT_DIRECTIONS['asc']
+            icon = current_direction["icon"]
+            next_direction_code = current_direction["next"]
+        else:
+            # Render anchor link to next direction
+            current_direction = SORT_DIRECTIONS[get_params.get("dir", "")]
+            icon = current_direction["icon"]
+            next_direction_code = current_direction["next"]
     else:
         icon = ""
         next_direction_code = "asc"
@@ -22,7 +39,7 @@ def render_sort_anchor(request, field_name, title):
     get_params["sort"] = field_name
     get_params["dir"] = next_direction_code
     url_append = "?" + get_params.urlencode() if get_params else ""
-    return f'<a href="{request.path}{url_append}" title="{title}">{title}{icon}</a>'
+    return f'<a href="{request.path}{url_append}" title="{title}" class="sort-column">{title}{icon}</a>'
 
 
 def get_order_by_from_request(request):

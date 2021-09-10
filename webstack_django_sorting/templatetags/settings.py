@@ -6,6 +6,6 @@ INVALID_FIELD_RAISES_404 = getattr(settings, "SORTING_INVALID_FIELD_RAISES_404",
 
 SORT_DIRECTIONS = {
     "asc": {"icon": DEFAULT_SORT_UP, "next": "desc"},
-    "desc": {"icon": DEFAULT_SORT_DOWN, "next": ""},
+    "desc": {"icon": DEFAULT_SORT_DOWN, "next": "asc"},
     "": {"icon": "", "next": "asc"},
 }

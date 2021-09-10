@@ -67,7 +67,12 @@ class SortAnchorNode(template.Node):
         else:
             display_title = self.title
 
-        return common.render_sort_anchor(context["request"], self.field, display_title)
+        # This is part of a kludge add by JMR to display an arrow on the column header representing
+        # the field used for the default order_by() on the queryset.
+        # This kludge will only work if a `default_sort_field` context variable is set in views.py.
+        default_sort = context.get('default_sort_field')
+
+        return common.render_sort_anchor(context["request"], self.field, display_title, default_sort)
 
 
 def autosort(parser, token):
